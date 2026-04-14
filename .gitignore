@@ -1,0 +1,25 @@
+# Secrets and local state
+.env
+*.env
+.mcp.json
+.poll-state.json
+
+# Logs
+*.log
+
+# Sessions (conversation history)
+sessions/
+
+# Memory state files
+memory/heartbeat-state.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+# Claude Code internal
+.claude/
