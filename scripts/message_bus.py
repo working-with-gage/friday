@@ -29,7 +29,7 @@ from pathlib import Path
 
 # ── Config ──
 WORKSPACE = Path.home() / "friday"
-GAGE_SLACK_ID = "U09CAPM2BEK"
+SLACK_USER_ID = os.environ.get("FRIDAY_SLACK_USER_ID", "")
 FRIDAY_PREFIX = "⚙️ Friday:"
 STATE_FILE = WORKSPACE / ".poll-state.json"
 
@@ -112,9 +112,7 @@ def build_context() -> str:
 def call_claude_poll(system_context: str, last_ts: str) -> str:
     """Call Claude Code to check Slack DMs and respond if needed."""
 
-    oldest_param = f', oldest: "{last_ts}"' if last_ts else ""
-
-    full_prompt = f"""You are Friday, a work AI assistant for Gage Verronneau. You communicate via Slack DMs.
+    full_prompt = f"""You are Friday, a work AI assistant. You communicate via Slack DMs.
 
 {system_context}
 
@@ -122,40 +120,45 @@ def call_claude_poll(system_context: str, last_ts: str) -> str:
 
 ## Your Task Right Now
 
-Check Gage's Slack DMs for new messages and respond if needed.
+Check Slack DMs for new messages and respond if needed.
 
-### Step 1: Read DMs
-Use the slack_read_channel tool with channel_id: "{GAGE_SLACK_ID}"{oldest_param}, limit: 15
+### Step 1: Read DMs (Full Context Window)
+Use the slack_read_channel tool with channel_id: "{SLACK_USER_ID}", limit: 20
 
-### Step 2: Filter Messages
-Look at the returned messages. SKIP any message that matches ANY of these:
+Read the FULL conversation history returned — this is your context for understanding what's been discussed.
+
+### Step 2: Identify NEW vs CONTEXT Messages
+- Messages with timestamps AFTER "{last_ts or ''}" are **NEW** — you haven't seen these yet
+- Messages with timestamps BEFORE or EQUAL to "{last_ts or ''}" are **CONTEXT ONLY** — read them to understand the conversation, but do NOT respond to them
+- If last_ts is empty, treat all messages as new
+
+### Step 3: Filter NEW Messages
+From the NEW messages only, SKIP any that match:
 - Starts with "{FRIDAY_PREFIX}" — those are your own previous responses
 - Starts with an emoji (any Slack emoji like :boxing_glove:, :sunny:, :gear:, :warning:, etc.)
-- Starts with "Boxer" or "*Boxer" — those are automated Boxer agent messages
+- Starts with "Boxer" or "*Boxer" — those are automated agent messages
 - Contains "Sent using" near the end — automated bot output
 - Is a bot message
 
-Only process messages that look like genuine, direct messages from Gage.
-
-### Step 3: Respond (if new messages exist)
-If there are genuine messages from Gage that pass the filters above:
-- Read and understand them
-- Compose a response as Friday — direct, helpful, professional
-- Send your response via slack_send_message with channel_id: "{GAGE_SLACK_ID}"
+### Step 4: Respond (if new genuine messages exist)
+If there are NEW genuine messages:
+- Use the FULL conversation history (both old and new messages) to understand context
+- Compose a response that demonstrates awareness of the ongoing conversation
+- Send your response via slack_send_message with channel_id: "{SLACK_USER_ID}"
 - **CRITICAL: Your message text MUST start with "{FRIDAY_PREFIX} "** (including the space after the colon)
 - If there are multiple new messages, address them all in a single response
 
-### Step 4: Report State
+### Step 5: Report State
 On the VERY LAST line of your output, print exactly one of:
 - If you responded: FRIDAY_POLL:{{"last_ts":"<timestamp of the newest message you saw>","responded":true}}
 - If no new messages: FRIDAY_POLL:{{"last_ts":"{last_ts or ''}","responded":false}}
 
 ### Rules
 - ALWAYS prefix Slack messages with "{FRIDAY_PREFIX} " — this prevents echo loops
-- Do NOT respond to your own messages (anything starting with "{FRIDAY_PREFIX}")
+- Do NOT respond to your own messages or CONTEXT messages — only NEW genuine messages
+- Use the full conversation history for context — do NOT lose the thread of a conversation
 - Keep responses Slack-appropriate — concise unless depth is warranted
-- You are Friday, NOT Jarvis
-- If you see no messages at all or only your own messages, just report state and stop"""
+- If you see no new messages or only your own messages, just report state and stop"""
 
     try:
         result = subprocess.run(
@@ -192,7 +195,7 @@ On the VERY LAST line of your output, print exactly one of:
 def call_claude_init() -> str:
     """Initialization call — just read the latest DM timestamp without responding."""
 
-    prompt = f"""Read Gage's Slack DMs using slack_read_channel with channel_id: "{GAGE_SLACK_ID}", limit: 1
+    prompt = f"""Read Slack DMs using slack_read_channel with channel_id: "{SLACK_USER_ID}", limit: 1
 
 Look at the most recent message. Report its timestamp.
 
@@ -248,12 +251,16 @@ def parse_poll_result(output: str) -> dict:
 # ── Main Loop ──
 
 def main():
+    if not SLACK_USER_ID:
+        log.error("FRIDAY_SLACK_USER_ID not set. Export it or add to .env")
+        sys.exit(1)
+
     log.info("=" * 50)
     log.info("Friday — Slack Message Bus starting")
     log.info(f"Workspace: {WORKSPACE}")
     log.info(f"Active hours: {ACTIVE_START}:00-{ACTIVE_END}:00 ET → {POLL_ACTIVE}s poll")
     log.info(f"Idle hours: outside window → {POLL_IDLE}s poll")
-    log.info(f"Gage Slack ID: {GAGE_SLACK_ID}")
+    log.info(f"Slack User ID: {SLACK_USER_ID}")
     log.info("=" * 50)
 
     state = load_state()
