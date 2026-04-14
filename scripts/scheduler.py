@@ -6,7 +6,6 @@ through Claude Code MCP tools.
 """
 
 import json
-import os
 import subprocess
 import time
 import logging
@@ -16,7 +15,7 @@ from pathlib import Path
 # ── Config ──
 WORKSPACE = Path.home() / "friday"
 HEARTBEAT_INTERVAL = 1800  # 30 minutes
-SLACK_USER_ID = os.environ.get("FRIDAY_SLACK_USER_ID", "")
+GAGE_SLACK_ID = "U09CAPM2BEK"
 FRIDAY_PREFIX = "⚙️ Friday:"
 
 # ── Logging ──
@@ -48,9 +47,9 @@ def call_claude(prompt: str, timeout: int = 180) -> str:
 
 
 def send_slack_dm(message: str):
-    """Send a Slack DM via Claude Code MCP."""
-    prompt = f"""Send this message via Slack DM.
-Use slack_send_message with channel_id: "{SLACK_USER_ID}"
+    """Send a Slack DM to Gage via Claude Code MCP."""
+    prompt = f"""Send this message to Gage via Slack DM.
+Use slack_send_message with channel_id: "{GAGE_SLACK_ID}"
 Message text (send exactly this): {FRIDAY_PREFIX} {message}
 
 Do NOT add anything else. Just send the message."""
@@ -84,8 +83,8 @@ def run_heartbeat():
 Current time: {datetime.now().strftime('%A, %B %d, %Y — %I:%M %p')} ET
 
 If there's pending work in WORKQUEUE.md (Status is not EMPTY/DONE), execute it.
-If something needs attention, send a Slack DM using slack_send_message
-with channel_id: "{SLACK_USER_ID}". ALWAYS prefix messages with "{FRIDAY_PREFIX} ".
+If something needs Gage's attention, send him a Slack DM using slack_send_message
+with channel_id: "{GAGE_SLACK_ID}". ALWAYS prefix messages with "{FRIDAY_PREFIX} ".
 If nothing needs attention, respond with exactly: HEARTBEAT_OK"""
 
     response = call_claude(prompt, timeout=180)

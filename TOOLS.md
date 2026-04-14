@@ -3,7 +3,7 @@
 Skills define _how_ tools work. This file is for _your_ specifics.
 
 ## Environment
-- Machine: Work MacBook (Apple Silicon, macOS)
+- Machine: Gage's work MacBook (Apple Silicon, macOS)
 - Communication: Slack DMs via Claude Code MCP
 - Browser skill: Playwright headless Chromium
 

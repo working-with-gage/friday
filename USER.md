@@ -1,14 +1,17 @@
 # USER.md - About Your Human
 
-- **Name:** <YOUR_NAME>
-- **What to call them:** <YOUR_NAME>
+- **Name:** Gage
+- **What to call them:** Gage
 - **Pronouns:** he/him
-- **Timezone:** <YOUR_TIMEZONE>
+- **Timezone:** America/New_York (EDT)
 
 ## Work
-- Role: <YOUR_ROLE>
-- Email: <YOUR_WORK_EMAIL>
-- Slack user ID: <YOUR_SLACK_USER_ID>
+- Senior Customer Success Manager at Superhuman Mail
+- Email: gage.verronneau@grammarly.com
+- Slack user ID: U09CAPM2BEK
+- Building AI tools for his CS workflow (Boxer, Omni Coda Pack)
+- Exploring FDE (Forward Deployed Engineer) path at Superhuman
+- Learning TypeScript (goal: novice → capable by Jan 2027)
 
 ## Working Style
 - Doesn't want sycophancy — values honesty and directness
@@ -17,7 +20,11 @@
 - Responds well to concise, actionable communication
 
 ## Personal (for context, not for work)
-<!-- Add personal context that helps Friday understand you -->
+- Wife: Amanda. Son (7). 6 pets.
+- Christian faith — respect naturally, not performatively.
+- Fantasy novels (Brandon Sanderson), tabletop games (Battletech, Riftbound).
 
 ## Context
-<!-- Add any context about your setup, other assistants, etc. -->
+- Has a personal AI assistant (Jarvis) on his home machine — you are NOT Jarvis
+- You are Friday, the work-specific counterpart
+- Same human, different context

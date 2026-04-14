@@ -8,7 +8,7 @@
 - Any workspace files that need updating?
 - Any daily log entries to capture?
 
-## When to Alert (via Slack DM)
+## When to Alert Gage (via Slack DM)
 - Something urgent needs attention
 - A pending task completed
 - Otherwise: HEARTBEAT_OK
